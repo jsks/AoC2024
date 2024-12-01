@@ -1,9 +1,9 @@
-(def input ["3 4"
-            "4 3"
-            "2 5"
-            "1 3"
-            "3 9"
-            "3 3"])
+(def test-input ["3 4"
+                 "4 3"
+                 "2 5"
+                 "1 3"
+                 "3 9"
+                 "3 3"])
 
 (defn parse-line [str] (map scan-number (peg/match ~{:main (* ':d+ :s+ ':d+)} str)))
 (defn read-lines [path]
@@ -12,20 +12,21 @@
 
 (defn puzzle [input proc]
   (def lines (map parse-line input))
-  (let [a (map |(get $ 0) lines)
-        b (map |(get $ 1) lines)]
+  (let [a (map first lines)
+        b (map last lines)]
     (proc a b)))
 
 # Puzzle 1
 (defn distance [a b]
-  (sum (map |(math/abs (- $0 $1)) (sort a) (sort b))))
+  (sum (map (comp math/abs -) (sort a) (sort b))))
 
-(assert (= (puzzle input distance) 11))
+(assert (= (puzzle test-input distance) 11))
 (-> (read-lines "input") (puzzle distance) print)
 
 # Puzzle 2
 (defn similarity [a b]
-  (reduce (fn [aux x] (+ aux (* (count |(= $ x) b) x))) 0 a))
+  (let [freq (frequencies b)]
+    (reduce (fn [aux x] (+ aux (* x (get freq x 0)))) 0 a)))
 
-(assert (= (puzzle input similarity) 31))
+(assert (= (puzzle test-input similarity) 31))
 (-> (read-lines "input") (puzzle similarity) print)
